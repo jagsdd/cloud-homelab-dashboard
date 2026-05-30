@@ -1,0 +1,20 @@
+name: Docker CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Build Docker image
+      run: docker build -t cloud-dashboard . 
+    - name: Run container
+      run: docker run -d -p 5000:5000 --name test-container cloud-dashboard
+    - name: wait for service to start
+      run: sleep 5
+    - name: Test health endpoint
+      run: curl hhtp://localhost:5000/health
