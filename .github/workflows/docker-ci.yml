@@ -17,4 +17,4 @@ jobs:
     - name: wait for service to start
       run: sleep 5
     - name: Test health endpoint
-      run: curl hhtp://localhost:5000/health
+      run: curl http://localhost:5000/health
