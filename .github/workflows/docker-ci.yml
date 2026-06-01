@@ -2,16 +2,17 @@ name: Docker CI
 
 on:
   push:
+    banches: [ "master" ]
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker image
+      - n: Build Docker image
         run: docker build -t cloud-dashboard .
 
       - name: Run container
@@ -34,7 +35,7 @@ jobs:
         if: failure()
         run: docker logs test-container
       
-      - name: Cleanup container
+      - name: Cleanup
         if: always()
         run: docker rm -f test-container
         
