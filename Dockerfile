@@ -7,4 +7,8 @@ COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ .
-CMD [ "python", "app.py" ]
+
+ENV PORT=5000
+ENV DEBUG=false
+
+CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "app:app" ]
