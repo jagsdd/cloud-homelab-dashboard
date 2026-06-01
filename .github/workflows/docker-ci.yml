@@ -12,8 +12,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - n: Build Docker image
-        run: docker build -t cloud-dashboard .
+      - name: Build Docker image (with cache)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: cloud-dashboard:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Run container
         run: docker run -d -p 5000:5000 --name test-container cloud-dashboard
