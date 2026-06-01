@@ -5,14 +5,15 @@ on:
     banches: [ "master" ]
 
 jobs:
-  build-test:
+
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker image (with cache)
+      - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -21,17 +22,37 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run container
-        run: docker run -d -p 5000:5000 --name test-container cloud-dashboard
+      - name: save docker image
+        run: docker save cloud-dashboard:latest -o image.tar
 
-      - name: wait for app health
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar
+
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: download docker image
+        run: actions/download-artifcat@v4
+        with:
+          name: docker-image
+
+      - name: load docker image
+        run: docker run -d -p 5000:5000 --name test-container cloud-dashboard:latest
+
+      - name: wait for health check
         run: |
           for i in {1..10}; do
             if curl -f http://localhost:5000/health; then
               echo "App is healthy"
               exit 0
             fi
-            echo "Waiting for app..."
+            echo "Waiting..."
             sleep 2
           done
           echo "App failed health check"
