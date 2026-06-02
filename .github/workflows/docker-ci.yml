@@ -107,7 +107,7 @@ jobs:
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:latest
 
       - name: push versioned
-        run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ env.VERSION }}
+        run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.run_number }}
 
 
 
