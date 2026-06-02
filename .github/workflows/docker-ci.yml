@@ -4,6 +4,10 @@ on:
   push:
     banches: [ "master" ]
 
+permissions:
+  contents: read
+  packages: wri
+
 jobs:
 
   build:
@@ -65,5 +69,45 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker rm -f test-container
+
+  
+  publish:
+    runs-on: ubuntu-latest
+    needs: test
+  
+    steps:
+      - name: download docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: load docker image
+        run: docker load -i image.tar
+
+      - name: log in to GCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: tag image
+        run: |
+          docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:latest
+
+      - name: push image
+        run: |
+          docker push ghcr.io/jagsdd/cloud-homelab-dashboard:latest
+
+
+
+
+
+
+
+
+
+
+
         
 
