@@ -98,10 +98,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: tag image (version + latest)
+      - name: tag image
         run: |
           docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:latest
-          docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:${{ env.VERSION }}
+          docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.run_number }}
 
       - name: push latest
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:latest
