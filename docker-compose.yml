@@ -1,0 +1,28 @@
+services:
+  dashboard:
+    build: .
+    container_name: cloud-dashboard
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@database:5432/dashboard
+    depends_on:
+      - database
+  
+  database:
+    image: postgres:17
+    container_name: cloud-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dashboard
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+volumes:
+  postgres_data:
+
+
