@@ -50,6 +50,23 @@ def get_servers():
         for r in rows
         ])
 
+@app.route("/servers/<int:server_id>", methods = ["DELETE"])
+def delete_server(server_id):
+    conn, cursor = get_db()
+
+    cursor.execute("DELETE FROM servers WHERE id = %s", (server_id,))
+
+    if cursor.rowcount == 0:
+        conn.close()
+        return jsonify(error = "server not found"), 404
+
+    conn.commit()
+    conn.close()
+
+    return jsonify(message = "server deleted")
+
+
+
 def init_db():
     conn, cursor = get_db()
     
