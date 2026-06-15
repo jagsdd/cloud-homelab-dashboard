@@ -66,6 +66,30 @@ def delete_server(server_id):
     return jsonify(message = "server deleted")
 
 
+@app.route("/servers/<int:server_id>", methods=["PUT"])
+def update_server(server_id):
+    conn, cursor = get_db()
+
+    data = request.get_json()
+
+
+    cursor.execute("SELECT id, name, status FROM servers WHERE id = %s", (server_id,))
+    row = cursor.fetchone()
+
+    if row is None:
+        conn.close()
+        return jsonify(error = "server not found"), 404
+    
+    name = data.get("name", row[1])
+    status = data.get("status", row[2])
+
+    cursor.execute("UPDATE servers SET name = %s, status = %s WHERE id = %s", (name, status, server_id))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify(message = "server updated")
+
 
 def init_db():
     conn, cursor = get_db()
