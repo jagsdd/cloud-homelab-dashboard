@@ -7,9 +7,37 @@ app = Flask(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+ALLOWED_STATUSES = ["online", "offline", "maintainance"]
+
+
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     return conn, conn.cursor()
+
+def validate_server(data):
+    if not data:
+        return "No input data provided"
+    
+    name = data.get("name")
+    if not name or not name.strip():
+        return "Name is required"
+    
+    status = data.get("status")
+    if status and status not in ALLOWED_STATUSES:
+        return f"Invalid status. Must be one of {ALLOWED_STATUSES}"
+    
+    return None
+
+def validate_server_update(data):
+    if not data:
+        return "No input data provided"
+    
+    status = data.get("status")
+    if status and status not in ALLOWED_STATUSES:
+        return f"Invalid status. Must be one of {ALLOWED_STATUSES}"
+    
+    return None
+
 
 @app.route("/")
 def home():
@@ -23,6 +51,10 @@ def health():
 @app.route("/servers", methods=["POST"])
 def add_server():
     data = request.get_json()
+
+    error = validate_server(data)
+    if error:
+        return jsonify(error=error), 400
     
     conn, cursor = get_db()
     
@@ -71,7 +103,10 @@ def update_server(server_id):
     conn, cursor = get_db()
 
     data = request.get_json()
-
+    
+    error = validate_server_update(data)
+    if error:
+        return jsonify(error=error), 400
 
     cursor.execute("SELECT id, name, status FROM servers WHERE id = %s", (server_id,))
     row = cursor.fetchone()
