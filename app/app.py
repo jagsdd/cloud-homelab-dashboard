@@ -100,13 +100,13 @@ def delete_server(server_id):
 
 @app.route("/servers/<int:server_id>", methods=["PUT"])
 def update_server(server_id):
-    conn, cursor = get_db()
-
     data = request.get_json()
     
     error = validate_server_update(data)
     if error:
         return jsonify(error=error), 400
+    
+    conn, cursor = get_db()
 
     cursor.execute("SELECT id, name, status FROM servers WHERE id = %s", (server_id,))
     row = cursor.fetchone()
