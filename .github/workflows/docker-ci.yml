@@ -69,22 +69,11 @@ jobs:
 
       - name: load docker image
         run: docker load -i image.tar
-
-      - name: Start Postgres
-        run: |
-          docker run -d \
-            --name postgres \
-            --network test-net \
-            -e POSTGRES_USER=postgres \
-            -e POSTGRES_PASSWORD=postgres \
-            -e POSTGRES_DB=dashboard \
-            postgres:17
       
       - name: run application container
         run: |
           docker run -d \
             --name test-container \
-            --network test-net \
             -p 5000:5000 \
             -e DATABASE_URL=postgresql://postgres:postgres@postgres:5432/dashboard \
             cloud-dashboard:latest
