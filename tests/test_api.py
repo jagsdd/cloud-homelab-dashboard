@@ -3,7 +3,9 @@ import os
 sys.path.append(os.path.abspath("."))
 
 import pytest
-from app.app import app, get_db
+from app.app import app
+from app.db import get_db
+
 
 @pytest.fixture(scope="function")
 def client():

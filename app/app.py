@@ -1,38 +1,13 @@
 import os
 import psycopg2
 from flask import Flask, jsonify, request
-from app.db import get_db
+from app.validation import (
+    validate_server_create,
+    validate_server_update
+)
 
 
 app = Flask(__name__)
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-ALLOWED_STATUSES = ["online", "offline", "maintainance"]
-
-def validate_server(data):
-    if not data:
-        return "No input data provided"
-    
-    name = data.get("name")
-    if not name or not name.strip():
-        return "Name is required"
-    
-    status = data.get("status")
-    if status and status not in ALLOWED_STATUSES:
-        return f"Invalid status. Must be one of {ALLOWED_STATUSES}"
-    
-    return None
-
-def validate_server_update(data):
-    if not data:
-        return "No input data provided"
-    
-    status = data.get("status")
-    if status and status not in ALLOWED_STATUSES:
-        return f"Invalid status. Must be one of {ALLOWED_STATUSES}"
-    
-    return None
 
 
 @app.route("/")
@@ -48,7 +23,7 @@ def health():
 def add_server():
     data = request.get_json()
 
-    error = validate_server(data)
+    error = validate_server_creat(data)
     if error:
         return jsonify(error=error), 400
     
