@@ -76,7 +76,7 @@ jobs:
       
       - name: Shutdown stack
         if: always()
-        run: docker compose down -v
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
         
   
   publish:
