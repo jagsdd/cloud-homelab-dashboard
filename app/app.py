@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from flask import Flask, jsonify, request
+from app.db import get_db
 
 
 app = Flask(__name__)
@@ -8,11 +9,6 @@ app = Flask(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 ALLOWED_STATUSES = ["online", "offline", "maintainance"]
-
-
-def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn, conn.cursor()
 
 def validate_server(data):
     if not data:
