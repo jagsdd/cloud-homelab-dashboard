@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from app.db import get_db, init_db
 from flask import Flask, jsonify, request
 from app.validation import (
     validate_server_create,
@@ -24,7 +25,7 @@ def add_server():
     try:
         data = request.get_json()
 
-        error = validate_server_creat(data)
+        error = validate_server_create(data)
         if error:
             return jsonify(error=error), 400
         
@@ -101,20 +102,7 @@ def update_server(server_id):
 
     return jsonify(message = "server updated")
 
-
-def init_db():
-    conn, cursor = get_db()
-    
-    cursor.execute("""
-                CREATE TABLE IF NOT EXISTS servers (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(100),
-                status VARCHAR(50)
-                )""")
-    
-    conn.commit()
-    conn.close()
-
+init_db()
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

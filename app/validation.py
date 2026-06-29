@@ -19,8 +19,7 @@ def validate_server_update(data):
         return "No input data provided"
     
     status = data.get("status")
-    if status and status not in ALLWED_STATUSES:
+    if status and status not in ALLOWED_STATUSES:
         return f"Invalid status. Must be one of {sorted(ALLOWED_STATUSES)}"
     
     return None
-    
