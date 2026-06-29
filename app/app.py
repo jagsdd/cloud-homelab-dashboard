@@ -21,23 +21,28 @@ def health():
 
 @app.route("/servers", methods=["POST"])
 def add_server():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    error = validate_server_creat(data)
-    if error:
-        return jsonify(error=error), 400
-    
-    conn, cursor = get_db()
-    
-    cursor.execute(
-        "INSERT INTO servers (name, status) VALUES (%s, %s)",
-        (data["name"], data.get("status", "unknown"))
-    )
-    
-    conn.commit()
-    conn.close()
+        error = validate_server_creat(data)
+        if error:
+            return jsonify(error=error), 400
+        
+        conn, cursor = get_db()
+        
+        cursor.execute(
+            "INSERT INTO servers (name, status) VALUES (%s, %s)",
+            (data["name"], data.get("status", "unknown"))
+        )
+        
+        conn.commit()
+        conn.close()
 
-    return jsonify(message="server added")
+        return jsonify(message="server added")
+
+    except Exception as e:
+        print("ERROR:", str(e))
+        raise
 
 @app.route("/servers", methods=["GET"])
 def get_servers():
