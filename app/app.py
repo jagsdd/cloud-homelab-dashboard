@@ -7,6 +7,7 @@ from app.validation import (
     validate_server_update
 )
 from app.repository import get_all_servers
+from app.repository import delete_server
 
 
 
@@ -52,17 +53,11 @@ def get_servers():
     return jsonify(get_all_servers())
 
 @app.route("/servers/<int:server_id>", methods = ["DELETE"])
-def delete_server(server_id):
-    conn, cursor = get_db()
+def remove_server(server_id):
+    deleted = delete_server(server_id)
 
-    cursor.execute("DELETE FROM servers WHERE id = %s", (server_id,))
-
-    if cursor.rowcount == 0:
-        conn.close()
+    if not deleted:
         return jsonify(error = "server not found"), 404
-
-    conn.commit()
-    conn.close()
 
     return jsonify(message = "server deleted")
 
