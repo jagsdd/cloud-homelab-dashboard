@@ -24,9 +24,9 @@ def health():
 
 @app.route("/servers", methods=["POST"])
 def add_server():
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
-    if not data:
+    if data is None:
         return jsonify(error = "Invalid JSON"), 400
 
     error = validate_server_create(data)
@@ -67,9 +67,8 @@ def modify_server(server_id):
     
     return jsonify(message = "server updated", server = result)
 
-@app.before_first_request
-def setup():
-    init_db()
+
+init_db()
 
 
 if __name__ == "__main__":
