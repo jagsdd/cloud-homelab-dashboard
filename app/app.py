@@ -6,8 +6,7 @@ from app.validation import (
     validate_server_create,
     validate_server_update
 )
-from app.repository import get_all_servers
-from app.repository import delete_server
+from app.repository import (get_all_servers, delete_server, update_server, create_server)
 
 
 
@@ -26,12 +25,9 @@ def health():
 @app.route("/servers", methods=["POST"])
 def add_server():
     data = request.get_json()
-    print("POST HIT:", data)
-
-    return jsonify(ok = True)
 
     if not data:
-        return jsonify(error = "Invalid Json"), 400
+        return jsonify(error = "Invalid JSON"), 400
 
     error = validate_server_create(data)
     if error:
@@ -71,7 +67,10 @@ def modify_server(server_id):
     
     return jsonify(message = "server updated", server = result)
 
-init_db()
+@app.before_first_request
+def setup():
+    init_db()
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))

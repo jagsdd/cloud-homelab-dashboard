@@ -60,7 +60,7 @@ def create_server(data):
     name = data["name"]
     status = data.get("status", "unknown")
 
-    curosr.execute(
+    cursor.execute(
         "INSERT INTO servers (name, status) VALUES (%s, %s) RETURNING id",
         (name, status)
     )
@@ -75,4 +75,3 @@ def create_server(data):
         "name": name,
         "status": status
     }
-    
