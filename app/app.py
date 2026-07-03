@@ -27,6 +27,9 @@ def health():
 def add_server():
     data = request.get_json()
 
+    if not data:
+        return jsonify(error = "Invalid Json"), 400
+
     error = validate_server_create(data)
     if error:
         return jsonify(error=error), 400
@@ -34,7 +37,7 @@ def add_server():
     result = create_server(data)
 
     return jsonify(message="server added", server = result)
-    
+
 
 @app.route("/servers", methods=["GET"])
 def get_servers():
