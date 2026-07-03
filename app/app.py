@@ -6,6 +6,8 @@ from app.validation import (
     validate_server_create,
     validate_server_update
 )
+from app.repository import get_all_servers
+
 
 
 app = Flask(__name__)
@@ -47,17 +49,7 @@ def add_server():
 
 @app.route("/servers", methods=["GET"])
 def get_servers():
-    conn, cursor = get_db()
-    
-    cursor.execute("SELECT id, name, status FROM servers")
-    rows = cursor.fetchall()
-    
-    conn.close()
-
-    return jsonify([
-        {"id": r[0], "name": r[1], "status": r[2]}
-        for r in rows
-        ])
+    return jsonify(get_all_servers())
 
 @app.route("/servers/<int:server_id>", methods = ["DELETE"])
 def delete_server(server_id):
