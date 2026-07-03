@@ -25,28 +25,16 @@ def health():
 
 @app.route("/servers", methods=["POST"])
 def add_server():
-    try:
-        data = request.get_json()
+    data = request.get_json()
 
-        error = validate_server_create(data)
-        if error:
-            return jsonify(error=error), 400
-        
-        conn, cursor = get_db()
-        
-        cursor.execute(
-            "INSERT INTO servers (name, status) VALUES (%s, %s)",
-            (data["name"], data.get("status", "unknown"))
-        )
-        
-        conn.commit()
-        conn.close()
+    error = validate_server_create(data)
+    if error:
+        return jsonify(error=error), 400
+    
+    result = create_server(data)
 
-        return jsonify(message="server added")
-
-    except Exception as e:
-        print("ERROR:", str(e))
-        raise
+    return jsonify(message="server added", server = result)
+    
 
 @app.route("/servers", methods=["GET"])
 def get_servers():
@@ -63,31 +51,19 @@ def remove_server(server_id):
 
 
 @app.route("/servers/<int:server_id>", methods=["PUT"])
-def update_server(server_id):
+def modify_server(server_id):
     data = request.get_json()
-    
+
     error = validate_server_update(data)
     if error:
         return jsonify(error=error), 400
     
-    conn, cursor = get_db()
+    result = update_server(server_id, data)
 
-    cursor.execute("SELECT id, name, status FROM servers WHERE id = %s", (server_id,))
-    row = cursor.fetchone()
-
-    if row is None:
-        conn.close()
+    if result is None:
         return jsonify(error = "server not found"), 404
     
-    name = data.get("name", row[1])
-    status = data.get("status", row[2])
-
-    cursor.execute("UPDATE servers SET name = %s, status = %s WHERE id = %s", (name, status, server_id))
-
-    conn.commit()
-    conn.close()
-
-    return jsonify(message = "server updated")
+    return jsonify(message = "server updated", server = result)
 
 init_db()
 
