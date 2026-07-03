@@ -26,6 +26,9 @@ def health():
 @app.route("/servers", methods=["POST"])
 def add_server():
     data = request.get_json()
+    print("POST HIT:", data)
+
+    retun jsonify(ok = True)
 
     if not data:
         return jsonify(error = "Invalid Json"), 400
