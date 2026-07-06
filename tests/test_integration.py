@@ -11,7 +11,7 @@ def test_create_server_valid():
         "http://localhost:5000/servers",
         json = {"name": "promox", "status": "online"}
     )
-    assert r.status_code == 200
+    assert r.status_code == 201
 
 def test_create_server_missing_name():
     r = requests.post(
