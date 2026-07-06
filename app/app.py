@@ -1,12 +1,9 @@
 import os
-import psycopg2
-from app.db import get_db, init_db
+from app.db import init_db
 from flask import Flask, jsonify, request
-from app.validation import (
-    validate_server_create,
-    validate_server_update
-)
-from app.repository import (get_all_servers, delete_server, update_server, create_server)
+from app.validation import validate_server_update
+from app.repository import (get_all_servers, delete_server, update_server)
+from app.service import create_server_service
 
 
 
@@ -24,18 +21,8 @@ def health():
 
 @app.route("/servers", methods=["POST"])
 def add_server():
-    data = request.get_json(silent=True)
-
-    if data is None:
-        return jsonify(error = "Invalid JSON"), 400
-
-    error = validate_server_create(data)
-    if error:
-        return jsonify(error=error), 400
-    
-    result = create_server(data)
-
-    return jsonify(message="server added", server = result)
+    result, status = create_server_service(request.get_json(silent=True))
+    return jsonify(result), status
 
 
 @app.route("/servers", methods=["GET"])
