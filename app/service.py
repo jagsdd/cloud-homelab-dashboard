@@ -1,5 +1,6 @@
 from app.validation import validate_server_create, validate_server_update
-from app.repository import create_server, update_server
+from app.repository import create_server, update_server, delete_server
+
 
 def create_server_service(data):
 
@@ -30,3 +31,11 @@ def update_server_service(server_id, data):
         return ({"error": "server not found"}, 404)
     
     return ({"message": "server updated", "server": result}, 200)
+
+def delete_server_service(server_id):
+    deleted = delete_server(server_id)
+
+    if not deleted:
+        return ({"error": "server not found"}, 404)
+
+    return ({"message": "server deleted"}, 200)
