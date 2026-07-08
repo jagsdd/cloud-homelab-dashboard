@@ -45,5 +45,29 @@ def test_update_server_valid():
     data = r.json()
     assert data["server"]["status"] == "offline"
 
+def test_update_server_not_found():
+    r = requests.put(
+        "http://localhost:5000/servers/999999",
+        json={"status": "offline"}
+    )
+    assert r.status_code == 404
+    assert r.json()["error"] == "server not found"
 
-    
+def test_update_server_invalid_status():
+    r = requests.post(
+        "http://localhost:5000/servers",
+        json = {"name": "promox", "status": "online"}
+    )
+    assert r.status_code == 201
+
+    data = r.json()
+    server_id = data["server"]["id"]
+
+    r = requests.put(
+        f"http://localhost:5000/servers/{server_id}",
+        json = {"status": "broken"}
+    )
+    assert r.status_code == 400
+    assert "invalid" in r.json()["error"].lower()
+
+
