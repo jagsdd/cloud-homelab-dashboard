@@ -1,9 +1,8 @@
 import os
 from app.db import init_db
 from flask import Flask, jsonify, request
-from app.validation import validate_server_update
-from app.repository import (get_all_servers, delete_server, update_server)
-from app.service import create_server_service
+from app.repository import (get_all_servers, delete_server)
+from app.service import (create_server_service, update_server_service)
 
 
 
@@ -41,18 +40,8 @@ def remove_server(server_id):
 
 @app.route("/servers/<int:server_id>", methods=["PUT"])
 def modify_server(server_id):
-    data = request.get_json()
-
-    error = validate_server_update(data)
-    if error:
-        return jsonify(error=error), 400
-    
-    result = update_server(server_id, data)
-
-    if result is None:
-        return jsonify(error = "server not found"), 404
-    
-    return jsonify(message = "server updated", server = result)
+    result, status = update_server_service(server_id, request.get_json(silent=True))
+    return jsonify(result), status
 
 
 init_db()
