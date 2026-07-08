@@ -1,8 +1,7 @@
 import os
 from app.db import init_db
 from flask import Flask, jsonify, request
-from app.repository import get_all_servers
-from app.service import (create_server_service, update_server_service, delete_server_service)
+from app.service import (create_server_service, update_server_service, delete_server_service, get_all_servers_service)
 
 
 
@@ -26,7 +25,8 @@ def add_server():
 
 @app.route("/servers", methods=["GET"])
 def get_servers():
-    return jsonify(get_all_servers())
+    result, status = get_all_servers_service()
+    return jsonify(result), status
 
 @app.route("/servers/<int:server_id>", methods = ["DELETE"])
 def remove_server(server_id):
