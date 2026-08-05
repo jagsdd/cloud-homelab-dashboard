@@ -75,3 +75,22 @@ def create_server(data):
         "name": name,
         "status": status
     }
+
+def get_server(server_id):
+    conn, cursor = get_db()
+
+    cursor.execute("SELECT id, name, status FROM servers WHERE id = %s", (server_id,))
+
+    row = cursor.fetchone()
+
+    if row is None: 
+        conn.close()
+        return None
+
+    conn.close()
+
+    return {
+        "id": row[0],
+        "name": row[1],
+        "status": row[2],
+    }

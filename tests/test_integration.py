@@ -9,7 +9,7 @@ def test_health_endpoint():
 def test_create_server_valid():
     r = requests.post(
         "http://localhost:5000/servers",
-        json = {"name": "promox", "status": "online"}
+        json = {"name": "proxmox", "status": "online"}
     )
     assert r.status_code == 201
 
@@ -30,7 +30,7 @@ def test_create_server_invalid_status():
 def test_update_server_valid():
     r = requests.post(
         "http://localhost:5000/servers",
-        json = {"name": "promox", "status": "online"}
+        json = {"name": "proxmox", "status": "online"}
     )
     assert r.status_code == 201
 
@@ -56,7 +56,7 @@ def test_update_server_not_found():
 def test_update_server_invalid_status():
     r = requests.post(
         "http://localhost:5000/servers",
-        json = {"name": "promox", "status": "online"}
+        json = {"name": "proxmox", "status": "online"}
     )
     assert r.status_code == 201
 
@@ -70,4 +70,28 @@ def test_update_server_invalid_status():
     assert r.status_code == 400
     assert "invalid" in r.json()["error"].lower()
 
+def test_get_server():
+    r = requests.post(
+        "http://localhost:5000/servers",
+        json = {"name": "proxmox", "status": "online"}
+    )
+    assert r.status_code == 201
 
+    data = r.json()
+    server_id =data["server"]["id"]
+
+    r = requests.get(
+        f"http://localhost:5000/servers/{server_id}",   
+    )
+    assert r.status_code ==200
+    data = r.json()
+    assert data["server"]["id"] == server_id
+    assert data["server"]["name"] == "proxmox"
+    assert data["server"]["status"] == "online"
+
+def test_get_invalid_server():
+    r = requests.get(
+        "http://localhost:5000/servers/999999",
+    )
+    assert r.status_code == 404
+    assert r.json()["error"] == "server not found"

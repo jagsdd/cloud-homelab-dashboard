@@ -1,5 +1,11 @@
 from app.validation import validate_server_create, validate_server_update
-from app.repository import create_server, update_server, delete_server, get_all_servers
+from app.repository import (
+    create_server,
+    update_server,
+    delete_server,
+    get_all_servers,
+    get_server
+)
 
 
 def create_server_service(data):
@@ -42,3 +48,13 @@ def delete_server_service(server_id):
 
 def get_all_servers_service():
     return (get_all_servers(), 200)
+
+def get_server_service(server_id):
+    server = get_server(server_id)
+
+    if server is None:
+        return ({"error": "server not found"}, 404)
+    
+    return ({"server": server}, 200)
+
+
