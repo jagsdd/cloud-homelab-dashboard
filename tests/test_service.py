@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from app.service import create_server_service, update_server_service, delete_server_service
+from app.service import create_server_service, update_server_service, delete_server_service, get_server_service
 from app.validation import ALLOWED_STATUSES
 
 
@@ -130,7 +130,40 @@ def test_delete_server_service_not_found():
         assert response["error"] == "server not found"
         assert status == 404
 
-        
+def test_get_server_service_valid():
+    server_id = 1
+
+    with patch("app.service.get_server") as mock_get_server:
+        mock_get_server.return_value = {
+            "id": 1,
+            "name": "proxmox",
+            "status": "online"
+        }
+
+        response, status = get_server_service(server_id)
+
+        mock_get_server.assert_called_once_with(server_id)
+
+        assert status == 200
+        assert response["server"]["id"] == server_id
+        assert response["server"]["name"] == "proxmox"
+        assert response["server"]["status"] == "online"
+
+def test_get_server_service_not_found():
+    server_id = 999999
+
+    with patch("app.service.get_server") as mock_get_server:
+        mock_get_server.return_value = None
+
+        response, status = get_server_service(server_id)
+
+        mock_get_server.assert_called_once_with(server_id)
+        assert response["error"] == "server not found"
+        assert status == 404
+
+
+
+
 
 
 
