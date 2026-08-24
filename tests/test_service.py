@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from app.service import create_server_service, update_server_service
+from app.service import create_server_service, update_server_service, delete_server_service
 from app.validation import ALLOWED_STATUSES
 
 
@@ -38,7 +38,6 @@ def test_create_server_service_invalid():
         mock_create_server.assert_not_called()
         assert status == 400
         assert response["error"] == "Name is required"
-
 
 def test_update_server_service_valid():
     server_id = 1
@@ -106,3 +105,36 @@ def test_update_server_service_not_found():
         mock_update_server.assert_called_once_with(server_id, data)
         assert status == 404
         assert response["error"] == "server not found"
+
+def test_delete_server_service_valid():
+    server_id = 1
+
+    with patch("app.service.delete_server") as mock_delete_server:
+        mock_delete_server.return_value = True
+
+        response, status = delete_server_service(server_id)
+
+        mock_delete_server.assert_called_once_with(server_id)
+        assert response["message"] == "server deleted"
+        assert status == 200
+
+def test_delete_server_service_not_found():
+    server_id = 999999
+
+    with patch("app.service.delete_server") as mock_delete_server:
+        mock_delete_server.return_value = False
+
+        response, status = delete_server_service(server_id)
+
+        mock_delete_server.assert_called_once_with(server_id)
+        assert response["error"] == "server not found"
+        assert status == 404
+
+        
+
+
+
+
+
+    
+
