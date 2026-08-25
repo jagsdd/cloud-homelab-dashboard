@@ -1,5 +1,5 @@
 from unittest.mock import patch, Mock, call
-from app.repository import get_server, create_server, delete_server, update_server
+from app.repository import get_server, create_server, delete_server, update_server, get_all_servers
 
 def test_get_server():
     mock_conn = Mock()
@@ -190,3 +190,54 @@ def test_update_server_not_found():
         assert server is None
         mock_conn.close.assert_called_once()
 
+def test_get_all_servers():
+    mock_conn = Mock()
+    mock_cursor = Mock()
+
+    with patch("app.repository.get_db") as mock_get_db:
+        mock_get_db.return_value = (mock_conn, mock_cursor)
+
+        mock_cursor.fetchall.return_value = [
+            (1, "proxmox", "online"),
+            (2, "nas", "offline")
+        ]
+
+        servers = get_all_servers()
+
+        mock_cursor.execute.assert_called_once_with(
+            "SELECT id, name, status FROM servers"
+        )
+
+        assert servers == [
+            {
+                "id": 1,
+                "name": "proxmox",
+                "status": "online"
+            },
+            {
+                "id": 2,
+                "name": "nas",
+                "status": "offline"
+            }
+        ]
+
+        mock_conn.close.assert_called_once()
+
+def test_get_all_servers_empty():
+    mock_conn = Mock()
+    mock_cursor = Mock()
+
+    with patch("app.repository.get_db") as mock_get_db:
+        mock_get_db.return_value = (mock_conn, mock_cursor)
+
+        mock_cursor.fetchall.return_value = []
+
+        servers = get_all_servers()
+
+        mock_cursor.execute.assert_called_once_with(
+            "SELECT id, name, status FROM servers"
+        )
+
+        assert servers == []
+
+        mock_conn.close.assert_called_once()
