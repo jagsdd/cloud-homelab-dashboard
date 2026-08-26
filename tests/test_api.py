@@ -1,51 +1,65 @@
-import sys
-import os
-sys.path.append(os.path.abspath("."))
+from unittest.mock import patch
 
 import pytest
 from app.app import app
-from app.db import get_db
 
 
 @pytest.fixture(scope="function")
 def client():
     app.config["TESTING"] = True
 
-    conn, cursor = get_db()
-    cursor.execute("DELETE FROM servers;")
-    conn.commit()
-    conn.close()
-
     with app.test_client() as client:
-        yield client
-
-@pytest.fixture(autouse=True)
-def init_db():
-    conn, cursor = get_db()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS servers (
-            id SERIAL PRIMARY KEY,
-            name VARCHAR(100),
-            status VARCHAR(50)
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-    
+        yield client  
 
 def test_health_endpoint(client):
     response = client.get("/health")
     assert response.status_code == 200
     assert response.get_json() == {"status": "ok"}
 
-def test_invalid_status(client):
-    response = client.put(
-        "/servers/1",
-        json = {
-            "status": "banana"
-        }
-    )
+def test_create_server(client):
+    with patch("app.app.create_server_service") as mock_create_server_service:
+        mock_create_server_service.return_value = (
+            {
+                "message": "server added",
+                "server": {
+                    "id": 1,
+                    "name": "proxmox",
+                    "status": "online"
+                }
+            },
+            201
+        )
 
-    assert response.status_code == 400
+        response = client.post(
+            "/servers",
+            json={"name": "proxmox"}
+        )
+        mock_create_server_service.assert_called_once_with(
+            {"name": "proxmox"}
+        )
+        assert response.status_code == 201
+        assert response.get_json() == {
+            "message": "server added",
+            "server": {
+                "id": 1,
+                "name": "proxmox",
+                "status": "online"
+            }
+        }
+
+
+
+def test_update_server_returns_service_error(client):
+    with patch("app.app.update_server_service") as mock_update_server_service:
+        mock_update_server_service.return_value = (
+            {"error": "Invalid status. Must be one of ['maintenance', 'offline', 'online']"},
+            400
+        )
+
+        response = client.put(
+            "/servers/1",
+            json={"status": "banana"}
+        )
+        mock_update_server_service.assert_called_once_with(1, {"status": "banana"})
+        assert response.status_code == 400
+        assert response.get_json() == {"error": "Invalid status. Must be one of ['maintenance', 'offline', 'online']"}

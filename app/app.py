@@ -51,9 +51,6 @@ def modify_server(server_id):
     return jsonify(result), status
 
 
-init_db()
-
-
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     debug = os.getenv("DEBUG", "True").lower() == "true"

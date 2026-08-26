@@ -13,6 +13,13 @@ def test_create_server_valid():
     )
     assert r.status_code == 201
 
+    data = r.json()
+
+    assert data["message"] == "server added"
+    assert data["server"]["id"] is not None
+    assert data["server"]["name"] == "proxmox"
+    assert data["server"]["status"] == "online"
+
 def test_create_server_missing_name():
     r = requests.post(
         "http://localhost:5000/servers",
@@ -92,6 +99,38 @@ def test_get_server():
 def test_get_invalid_server():
     r = requests.get(
         "http://localhost:5000/servers/999999",
+    )
+    assert r.status_code == 404
+    assert r.json()["error"] == "server not found"
+
+def test_delete_server():
+    r = requests.post(
+        "http://localhost:5000/servers",
+        json = {"name": "proxmox", "status": "online"}
+    )
+
+    assert r.status_code == 201
+
+    data = r.json()
+    server_id = data["server"]["id"]
+
+    r = requests.delete(
+        f"http://localhost:5000/servers/{server_id}"
+    )
+
+    assert r.status_code == 200
+    data = r.json()
+    assert data["message"] == "server deleted"
+
+    r = requests.get(
+        f"http://localhost:5000/servers/{server_id}"
+    )
+    assert r.status_code == 404
+    assert r.json()["error"] == "server not found"
+
+def test_delete_server_not_found():
+    r = requests.delete(
+        "http://localhost:5000/servers/999999"
     )
     assert r.status_code == 404
     assert r.json()["error"] == "server not found"
