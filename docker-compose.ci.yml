@@ -1,6 +1,7 @@
 services:
 
   dashboard:
+    image: cloud-dashboard:latest
     env_file: []
     environment:
       DATABASE_URL: postgresql://postgres:postgres@database:5432/dashboard
