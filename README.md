@@ -1,13 +1,21 @@
-Architecture
+## Architecture
 
 The application is split into three layers:
 
-Routes:
-Responsible for handline HTTP requests and responses.
+### Routes
+Responsible for handling HTTP requests and responses.
 
-Services:
+### Services
 Responsible for business logic and validation.
 
-Repositories:
+### Repositories
 Responsible for database communication.
+
+### Deployment
+The application is deployed using the Docker image published to GitHub Container Registry.
+To deploy a specific image version:
+
+```bash
+IMAGE_TAG=<version> docker compose -f docker-compose.prod.yml up -d
+
 
