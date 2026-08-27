@@ -8,7 +8,10 @@ RUN pip install --no-cache-dir -r requirements.txt pytest
 
 COPY . .
 
+RUN chmod +x entrypoint.sh
+
 ENV PORT=5000
 ENV DEBUG=false
 
-CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "app.app:app" ]
+ENTRYPOINT ["./entrypoint.sh"]
+
