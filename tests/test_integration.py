@@ -134,3 +134,32 @@ def test_delete_server_not_found():
     )
     assert r.status_code == 404
     assert r.json()["error"] == "server not found"
+
+def test_get_all_servers():
+    r = requests.post(
+        "http://localhost:5000/servers",
+        json = {"name": "proxmox", "status": "online"}
+    )
+
+    assert r.status_code == 201
+
+    r = requests.post(
+        "http://localhost:5000/servers",
+        json = {"name": "nas", "status": "offline"}
+
+    )
+
+    assert r.status_code == 201
+
+    r = requests.get(
+        "http://localhost:5000/servers"
+    )
+
+    assert r.status_code == 200
+
+    data = r.json()
+
+    assert len(data) >= 2
+    assert any(server["name"] == "proxmox" for server in data)
+    assert any(server["name"] == "nas" for server in data)
+    

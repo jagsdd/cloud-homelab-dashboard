@@ -6,7 +6,6 @@ services:
       - "5000:5000"
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@database:5432/dashboard
-      - TEST_DATABASE_URL=postgresql://postgres:postgres@database:5432/dashboard_test
     depends_on:
       database:
         condition: service_healthy
