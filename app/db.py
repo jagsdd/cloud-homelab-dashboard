@@ -19,3 +19,15 @@ def init_db():
     
     conn.commit()
     conn.close()
+
+def check_db_connection():
+    try:
+        conn, cursor = get_db()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        conn.close()
+        return True
+    except psycopg2.Error:
+        return False
+    
+

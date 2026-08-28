@@ -1,5 +1,5 @@
 import os
-from app.db import init_db
+from app.db import init_db, check_db_connection
 from flask import Flask, jsonify, request
 from app.service import (
     create_server_service,
@@ -21,7 +21,9 @@ def home():
 
 @app.route("/health")
 def health():
-     return jsonify(status="ok")
+     if check_db_connection():
+         return jsonify(status="ok")
+     return jsonify(status="unhealthy"), 503
 
 @app.route("/servers", methods=["POST"])
 def add_server():

@@ -9,12 +9,27 @@ def client():
     app.config["TESTING"] = True
 
     with app.test_client() as client:
-        yield client  
+        yield client
 
 def test_health_endpoint(client):
-    response = client.get("/health")
-    assert response.status_code == 200
-    assert response.get_json() == {"status": "ok"}
+    with patch("app.app.check_db_connection") as mock_check_db_connection:
+        mock_check_db_connection.return_value = True
+
+        response = client.get("/health")
+
+        mock_check_db_connection.assert_called_once_with()
+        assert response.status_code == 200
+        assert response.get_json() == {"status": "ok"}
+
+def test_health_endpoint_db_unhealthy(client):
+    with patch("app.app.check_db_connection") as mock_check_db_connection:
+        mock_check_db_connection.return_value = False
+
+        response = client.get("/health")
+
+        mock_check_db_connection.assert_called_once_with()
+        assert response.status_code == 503
+        assert response.get_json() == {"status": "unhealthy"}
 
 def test_create_server(client):
     with patch("app.app.create_server_service") as mock_create_server_service:
