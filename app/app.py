@@ -1,4 +1,5 @@
 import os
+import logging
 from app.db import init_db, check_db_connection
 from flask import Flask, jsonify, request
 from app.service import (
@@ -12,6 +13,11 @@ from app.service import (
 
 
 app = Flask(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 
 
 @app.route("/")

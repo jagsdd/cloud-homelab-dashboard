@@ -6,6 +6,9 @@ from app.repository import (
     get_all_servers,
     get_server
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def create_server_service(data):
@@ -18,6 +21,8 @@ def create_server_service(data):
         return ({"error": error}, 400)
     
     result = create_server(data)
+
+    logger.info("Server created: id=%s name=%s", result["id"], result["name"])
 
     return ({"message": "server added", "server": result}, 201)
 
