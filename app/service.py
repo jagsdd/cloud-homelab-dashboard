@@ -39,7 +39,15 @@ def update_server_service(server_id, data):
     result = update_server(server_id, data)
 
     if result is None:
+        logger.warning("Server update failed: id=%s not found", server_id)
         return ({"error": "server not found"}, 404)
+
+    logger.info(
+        "Server updated: id=%s name=%s status=%s",
+        result["id"],
+        result["name"],
+        result["status"]
+    )
     
     return ({"message": "server updated", "server": result}, 200)
 
@@ -47,8 +55,10 @@ def delete_server_service(server_id):
     deleted = delete_server(server_id)
 
     if not deleted:
+        logger.warning("Server deletion failed: id=%s not found", server_id)
         return ({"error": "server not found"}, 404)
 
+    logger.info("Server deleted: id=%s", server_id)
     return ({"message": "server deleted"}, 200)
 
 def get_all_servers_service():
