@@ -28,7 +28,16 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    
+
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    container_name: cloud-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - dashboard
   
 volumes:
   postgres_data:    
