@@ -7,6 +7,7 @@ from app.repository import (
     get_server
 )
 import logging
+from app.metrics import servers_created_total
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ def create_server_service(data):
         return ({"error": error}, 400)
     
     result = create_server(data)
+    servers_created_total.inc()
 
     logger.info("Server created: id=%s name=%s", result["id"], result["name"])
 

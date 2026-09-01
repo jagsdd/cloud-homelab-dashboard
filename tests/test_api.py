@@ -78,3 +78,9 @@ def test_update_server_returns_service_error(client):
         mock_update_server_service.assert_called_once_with(1, {"status": "banana"})
         assert response.status_code == 400
         assert response.get_json() == {"error": "Invalid status. Must be one of ['maintenance', 'offline', 'online']"}
+
+def test_metrics_endpoint(client):
+    response = client.get("/metrics")
+
+    assert response.status_code == 200
+    assert "text/plain" in response.content_type

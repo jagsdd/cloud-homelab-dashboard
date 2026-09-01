@@ -1,6 +1,8 @@
 from unittest.mock import patch
 from app.service import create_server_service, update_server_service, delete_server_service, get_server_service
 from app.validation import ALLOWED_STATUSES
+from app.metrics import servers_created_total
+
 
 
 
@@ -19,13 +21,34 @@ def test_create_server_service_valid():
         response, status = create_server_service(data)
 
         mock_create_server.assert_called_once_with(data)
-        
+
         assert status == 201
         assert response["message"] == "server added"
-        
+
         assert response["server"]["id"] == 1
         assert response["server"]["name"] == "proxmox"
         assert response["server"]["status"] == "online"
+
+def test_create_server_increments_metric():
+    data = {
+        "name": "proxmox",
+        "status": "online"
+    }
+
+    before = servers_created_total._value.get()
+
+    with patch("app.service.create_server") as mock_create_server:
+        mock_create_server.return_value = {
+            "id": 1,
+            "name": "proxmox",
+            "status": "online"
+        }
+
+        create_server_service(data)
+
+    after = servers_created_total._value.get()
+
+    assert after == before + 1
 
 def test_create_server_service_invalid():
     data = {
@@ -160,14 +183,4 @@ def test_get_server_service_not_found():
         mock_get_server.assert_called_once_with(server_id)
         assert response["error"] == "server not found"
         assert status == 404
-
-
-
-
-
-
-
-
-
-    
 
