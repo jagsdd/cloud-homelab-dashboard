@@ -9,11 +9,23 @@ from app.service import (
     get_all_servers_service,
     get_server_service
 )
-from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 
-
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total number of HTTP requests",
+    ["method", "status"]
+)
 
 app = Flask(__name__)
+
+@app.after_request
+def count_request(response):
+    REQUEST_COUNT.labels(
+        request.method,
+        str(response.status_code)
+    ).inc()
+    return response
 
 logging.basicConfig(
     level=logging.INFO,
