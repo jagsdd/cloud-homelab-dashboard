@@ -1,7 +1,6 @@
-import os
-import logging
+import os, logging, time
 from app.db import init_db, check_db_connection
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g
 from app.service import (
     create_server_service,
     update_server_service,
@@ -9,7 +8,7 @@ from app.service import (
     get_all_servers_service,
     get_server_service
 )
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
 REQUEST_COUNT = Counter(
     "http_requests_total",
@@ -17,7 +16,16 @@ REQUEST_COUNT = Counter(
     ["method", "status"]
 )
 
+REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request duration in seconds"
+)
+
 app = Flask(__name__)
+
+@app.before_request
+def start_timer():
+    g.start_time = time.perf_counter()
 
 @app.after_request
 def count_request(response):
@@ -25,6 +33,11 @@ def count_request(response):
         request.method,
         str(response.status_code)
     ).inc()
+
+    REQUEST_LATENCY.observe(
+        time.perf_counter() - g.start_time
+    )
+
     return response
 
 logging.basicConfig(
