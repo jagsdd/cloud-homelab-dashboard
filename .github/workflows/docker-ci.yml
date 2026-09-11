@@ -142,10 +142,14 @@ jobs:
         run: |
           docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:latest
           docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.run_number }}
+          docker tag cloud-dashboard:latest ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.sha }}
 
       - name: push latest
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:latest
 
       - name: push versioned
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.run_number }}
+
+      - name: push commit
+        run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.sha }}
 
