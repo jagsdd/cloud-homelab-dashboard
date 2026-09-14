@@ -10,6 +10,9 @@ COPY . .
 
 RUN chmod +x entrypoint.sh
 
+RUN useradd --create-home appuser
+USER appuser
+
 ENV PORT=5000
 ENV DEBUG=false
 
