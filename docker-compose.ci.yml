@@ -4,12 +4,16 @@ services:
     image: cloud-dashboard:latest
     env_file: []
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@database:5432/dashboard
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
     depends_on:
       database:
         condition: service_healthy
   
   database:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dashboard
     ports:
       - "5432:5432"
     
