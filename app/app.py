@@ -1,5 +1,6 @@
-import os, logging, time
-from app.db import init_db, check_db_connection
+import logging, time
+from app.db import check_db_connection
+from app.config import PORT, DEBUG
 from flask import Flask, jsonify, request, g
 from app.service import (
     create_server_service,
@@ -47,7 +48,6 @@ logging.basicConfig(
 
 @app.route("/")
 def home():
-     init_db()
      return "Cloud Homelab Dashboard running"
 
 @app.route("/health")
@@ -86,8 +86,6 @@ def modify_server(server_id):
     return jsonify(result), status
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))
-    debug = os.getenv("DEBUG", "True").lower() == "true"
-    app.run(host = "0.0.0.0", port = port, debug = debug)
+    app.run(host="0.0.0.0", port=int(PORT), debug=DEBUG)
     
 
