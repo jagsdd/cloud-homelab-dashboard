@@ -1,5 +1,5 @@
 resource "aws_vpc" "homelab" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "cloud-homelab-vpc"
@@ -8,8 +8,8 @@ resource "aws_vpc" "homelab" {
 
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.homelab.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "eu-west-2a"
+  cidr_block              = var.public_subnet_cidr
+  availability_zone       = var.availability_zone
   map_public_ip_on_launch = true
 
   tags = {
@@ -53,7 +53,7 @@ resource "aws_security_group" "ec2" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["81.110.200.122/32"]
+    cidr_blocks = ["${var.admin_ip}/32"]
   }
 
   ingress {
@@ -95,8 +95,8 @@ resource "aws_key_pair" "homelab" {
 }
 
 resource "aws_instance" "homelab" {
-  ami           = "ami-03cf5768bcc686a8c"
-  instance_type = "t3.small"
+  ami           = var.ami_id
+  instance_type = var.instance_type
   subnet_id     = aws_subnet.public.id
 
   vpc_security_group_ids = [
