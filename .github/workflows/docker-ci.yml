@@ -174,12 +174,20 @@ jobs:
             echo "EC2_DEPLOY_KEY is available"
           fi
 
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_DEPLOY_KEY }}
+          EC2_HOST: ${{ vars.EC2_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/github_actions_deploy
+          chmod 600 ~/.ssh/github_actions_deploy
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ vars.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_DEPLOY_KEY }}
-          script: |
-            cd ~/cloud-homelab
-            ./deploy.sh ${{ github.sha }}
+        env:
+          EC2_HOST: ${{ vars.EC2_HOST }}
+        run: |
+          ssh -i ~/.ssh/github_actions_deploy \
+            ubuntu@"$EC2_HOST" \
+            "cd ~/cloud-homelab && ./deploy.sh $GITHUB_SHA"
