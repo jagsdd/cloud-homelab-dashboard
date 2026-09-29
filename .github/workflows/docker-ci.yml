@@ -157,6 +157,7 @@ jobs:
       - name: push commit
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.sha }}
 
+
   deploy:
     runs-on: ubuntu-latest
     needs: publish
