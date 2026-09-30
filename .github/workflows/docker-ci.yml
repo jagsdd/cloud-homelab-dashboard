@@ -157,8 +157,9 @@ jobs:
       - name: push commit
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.sha }}
 
-  aws-ssm-test:
+  deploy:
     runs-on: ubuntu-latest
+    needs: publish
 
     permissions:
       id-token: write
@@ -171,16 +172,16 @@ jobs:
           role-to-assume: arn:aws:iam::712236451077:role/github-actions-cloud-homelab-deploy
           aws-region: eu-west-2
 
-      - name: Run command on EC2
+      - name: Deploy to EC2 via SSM
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids i-0a71bd53ae126b0ea \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["whoami","hostname","docker --version"]' \
+            --parameters 'commands=["cd /home/ubuntu/cloud-homelab && ./deploy.sh ${{ github.sha }}"]' \
             --query "Command.CommandId" \
             --output text)
 
-          echo "Command ID: $COMMAND_ID"
+          echo "Deployment command ID: $COMMAND_ID"
 
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
@@ -191,3 +192,16 @@ jobs:
             --instance-id i-0a71bd53ae126b0ea \
             --query "StandardOutputContent" \
             --output text
+
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id i-0a71bd53ae126b0ea \
+            --query "Status" \
+            --output text)
+
+          echo "Deployment status: $STATUS"
+
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment failed."
+            exit 1
+          fi
