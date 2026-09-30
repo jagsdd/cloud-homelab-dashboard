@@ -157,3 +157,19 @@ jobs:
       - name: push commit
         run: docker push ghcr.io/jagsdd/cloud-homelab-dashboard:${{ github.sha }}
 
+  aws-auth-test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::712236451077:role/github-actions-cloud-homelab-deploy
+          aws-region: eu-west-2
+      
+      - name: Verify AWS identity
+        run: aws sts get-caller-identity
